@@ -1,0 +1,1 @@
+# genai-workshop-READY2025
