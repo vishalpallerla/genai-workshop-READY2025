@@ -5,23 +5,17 @@
     do ##class(Security.Users).UnExpireUserPasswords("*")
     zpm "install passwordless"
 
-    // Enable callin for Embedded Python
-    do ##class(Security.Services).Get("%Service_CallIn",.prop)
-    set prop("Enabled")=1
-    set prop("AutheEnabled")=48
-    do ##class(Security.Services).Modify("%Service_CallIn",.prop)
-
     // create IRISAPP namespace
     do $SYSTEM.OBJ.Load("/home/irisowner/dev/App.Installer.cls", "ck")
     set sc = ##class(App.Installer).setup()
 
     zn "IRISAPP"
 
-    // Create /_vscode web app to support intersystems-community.testingmanager VS Code extension
-    zpm "install vscode-per-namespace-settings"
-
-    // Configure %UnitTest in IRISAPP to suit the VS Code extension
-    set ^UnitTestRoot="/usr/irissys/.vscode/IRISAPP/UnitTestRoot"
-
+    // Load the classes 
     zpm "load /home/irisowner/dev/ -v":1:1
+
+    // Install csvgen load and load data
+    zpm "install csvgen"
+    do ##class(community.csvgen).Generate("/home/irisowner/dev/data/encounters.csv",,"GenAI.encounters")
+
     halt
