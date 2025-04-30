@@ -1,60 +1,9 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
-// Trigger a pre-build
-// https://github.com/microsoft/vscode-dev-containers/tree/v0.224.2/containers/docker-existing-docker-compose
 {
-	"name": "GenAI 2025 Ready Workshop",
-	// Use the same recipe as creates the container we use when working locally.
-	"dockerComposeFile": [
-		"../docker-compose.yml"
-	],
-	// "service": "iris",
-	// "workspaceFolder": "/home/irisowner/dev",
+	"name": "Jupyter Dev with IRIS",
+	"dockerComposeFile": "../docker-compose.yml",
+	"shutdownAction": "stopCompose",
 	"service": "jupyter",
-	"workspaceFolder": "/home/joyvan/workspaces",
-	
-
-	// This provides the elements of the connection object which require different values when connecting to the workspace within the container,
-	// versus those in .vscode/settings.json which apply when operating locally on the workspace files.
-	// We define and use a `server` so that (a) a user-level `objectscript.conn.server` properly doesn't override us, and (b) so InterSystems
-	// Server Manager can also be used.
-	"customizations": {
-		"vscode": {
-			"settings": {
-				"objectscript.conn": {
-					"server": "devcontainer",
-					"active": true
-				},
-				"intersystems.servers": {
-					"devcontainer": {
-						"username": "SuperUser",
-						"password": "SYS",
-						"webServer": {
-							"scheme": "http",
-							"host": "127.0.0.1",
-							"port": 52773
-						}
-					}
-				},
-				"extensions": [
-					"ms-python.python",
-					"ms-python.vscode-pylance",
-					"intersystems-community.vscode-objectscript",
-					"intersystems.language-server",
-					"intersystems-community.servermanager",
-					"ms-vscode.docker",
-    				// "ms-vscode-remote.remote-containers"
-				]
-			},
-			"python.defaultInterpreterPath": "/usr/irissys/bin/irispython"
-		}
-		
-	},
-	// Add the IDs of extensions we want installed when the container is created.
-	// Currently (March 2022) `intersystems.language-server` fails to run within the container (alpine platform).
-	// Issue is probably https://github.com/intersystems/language-server/issues/185 and/or https://github.com/intersystems/language-server/issues/32
-	// Crash gets reported to the user, after which `intersystems-community.vscode-objectscript` falls back to
-	// using its TextMate grammar for code coloring.
-	"forwardPorts": [
-		8889
-	]
-}
+	"workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/notebooks,type=bind,consistency=cached",
+	"workspaceFolder": "/home/jovyan/notebooks",
+	"forwardPorts": [8889,"iris:52773","iris:1972"]
+  }

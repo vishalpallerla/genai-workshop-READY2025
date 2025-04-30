@@ -1,5 +1,4 @@
- 
- services:
+services:
   iris:
     build:
       context: ./iris
@@ -14,20 +13,11 @@
     volumes:
       - ./iris:/home/irisowner/dev
   jupyter:
-    # build:
-    #   context: ./jupyter
-     # dockerfile: Dockerfile
     image: quay.io/jupyter/base-notebook:python-3.12
     ports:
       - 8889:8888
-    # volumes:
-    #   - ./jupyter:/home/joyvan/workspaces
-    # volumes:
-    #   - type: bind
-    #     source: ./jupyter/notebooks
-    #     target: /home/jovyan/workspace
     command: start-notebook.py --NotebookApp.token=''
-    # depends_on: ['iris']
-
-
+    volumes:
+      - ./notebooks/.:/home/jovyan/notebooks/
+  
 
