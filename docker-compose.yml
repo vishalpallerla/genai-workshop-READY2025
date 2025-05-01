@@ -19,6 +19,6 @@ services:
       - 8889:8888
     command: start-notebook.py --NotebookApp.token=''
     volumes:
-      - ./notebooks/.:/home/jovyan/notebooks/
+      - ./notebooks:/home/jovyan/notebooks
   
 

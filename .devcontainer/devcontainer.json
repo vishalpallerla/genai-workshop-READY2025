@@ -5,5 +5,13 @@
 	"service": "jupyter",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/notebooks,type=bind,consistency=cached",
 	"workspaceFolder": "/home/jovyan/notebooks",
-	"forwardPorts": [8889,"iris:52773","iris:1972"]
+	"forwardPorts": [8889,"iris:52773","iris:1972"],
+	"vscode": {
+		"extensions": [
+		  "ms-toolsai.jupyter",
+		  "ms-python.python",
+		  "vscode-default-python-kernel"
+		]
+		
+	  }
   }
