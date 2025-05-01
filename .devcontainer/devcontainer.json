@@ -2,15 +2,15 @@
 	"name": "Jupyter Dev with IRIS",
 	"dockerComposeFile": "../docker-compose.yml",
 	"shutdownAction": "stopCompose",
-	"service": "jupyter",
-	"workspaceMount": "source=${localWorkspaceFolder},target=/home/jovyan/notebooks,type=bind,consistency=cached",
-	"workspaceFolder": "/home/jovyan/notebooks",
+	"service": "python",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/home/python/work,type=bind,consistency=cached",
+	"workspaceFolder": "/home/python/work",
 	"forwardPorts": [8889,"iris:52773","iris:1972"],
+	//"postStartCommand": "python test_script.py",
 	"vscode": {
 		"extensions": [
-		  "ms-toolsai.jupyter",
 		  "ms-python.python",
-		  "vscode-default-python-kernel"
+		 // "vscode-default-python-kernel"
 		]
 		
 	  }

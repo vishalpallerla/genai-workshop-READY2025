@@ -13,12 +13,16 @@ services:
       - 53773
     volumes:
       - ./iris:/home/irisowner/dev
-  jupyter:
-    image: quay.io/jupyter/base-notebook:python-3.12
-    ports:
-      - 8889:8888
-    command: start-notebook.py --NotebookApp.token=''
+  python:
+    container_name: python
+    build:
+      context: ./python
+      dockerfile: Dockerfile
+    tty: true
+    #command: [ "python", "/home/python/work/test_connect.py" ]
+    # ports:
+    #   - 8889:8888
     volumes:
-      - ./notebooks:/home/jovyan/notebooks
+      - ./python/work:/home/python/work
   
 
