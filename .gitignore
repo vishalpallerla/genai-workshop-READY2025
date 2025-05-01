@@ -3,3 +3,6 @@ iris-main.log
 .env
 .git
 __pycache__/
+
+iris/models-*
+iris/.locks/

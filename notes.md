@@ -11,6 +11,17 @@
 3. IRIS python
    1. Official db-api drivers might not work with many of the other community libs like iris-alchemy, iris-llama, iris-langchain
    2. Official driver throws ssl error
+   3. Embedding.Config fails because it does not seem that sentence_transformers is installed.
+      1. INSERT INTO %Embedding.Config (Name, Configuration, EmbeddingClass, Description)
+         VALUES ('sentence-transformers-config',
+                  '{"modelName":"sentence-transformers/all-MiniLM-L6-v2",
+                     "hfCachePath":"/Users/InterSystems/VEC147/hfCache",
+                     "maxTokens": 256,
+                     "checkTokenCount": true}',
+                  '%Embedding.SentenceTransformers',
+                  '',
+                  'a small SentenceTransformers embedding model')
+
 
 ## Notes
 1. Using the db-api driver from the community

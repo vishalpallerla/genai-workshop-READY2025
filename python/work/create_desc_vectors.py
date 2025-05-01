@@ -2,6 +2,7 @@
 import connect
 import pandas as pd
 import json 
+from sqlalchemy import create_engine, text
 
 '''
 INSERT INTO %Embedding.Config (Name, Configuration, EmbeddingClass, VectorLength, Description)
@@ -22,6 +23,7 @@ embeddings = model.encode(text)
 
 table_name = 'GenAI.encounters'
 model_dir = "/home/irisowner/dev"
+model_name = "sentence-transformers/all-MiniLM-L6-v2"
 
 new_cols = [
     f"ALTER TABLE {table_name} ADD DESCRIPTION_OBSERVATIONS_Vector VECTOR(FLOAT, 384)",
@@ -60,14 +62,20 @@ def update_columns(add_columns: list = [], del_columns: list = []):
         for stmt in add_columns:
             execute_sql(conn, stmt)
 
-def add_embedding_config():
+def add_embedding_config(delete: bool = True):
   
-  model_name = "sentence-transformers/all-MiniLM-L6-v2"
+  embed_config_table = '%Embedding.Config' 
+  if delete:
+      conn = connect.get_connection()
+      del_sql = F"DELETE FROM {embed_config_table} where model_name = '{model_name}'"
+      execute_sql(conn,del_sql)
+      conn.close()
+
   model_config = {"modelName":model_name,
                 "hfCachePath":model_dir,
-                "checkTokenCount": True}
+                "checkTokenCount": False}
   
-  stmt = f"""INSERT INTO %Embedding.Config (Name, Configuration, EmbeddingClass, Description)
+  stmt = f"""INSERT INTO {embed_config_table} (Name, Configuration, EmbeddingClass, Description)
   VALUES ('{model_name}',
           '{json.dumps(model_config)}',
           '%Embedding.SentenceTransformers',
@@ -78,36 +86,42 @@ def add_embedding_config():
   execute_sql(conn, stmt)
 
 
-def add_vectors(source_col: str, vector_col: str):
+def add_vectors():
 
     fields = ['DESCRIPTION_OBSERVATIONS', 'DESCRIPTION_PROCEDURES',
-              'DESCRIPTION_MEDICATIONS', 'DESCRIPTION_CONDITIONS' ]
+              'DESCRIPTION_MEDICATIONS', 'DESCRIPTION_CONDITIONS']
     
-    conn = connect.get_connection()
-    data = pd.read_sql(f"Select {','.join(fields)} from {table_name}")
+    fields_str = ','.join(fields)
 
-    # model = sentence_transformers.SentenceTransformer('all-MiniLM-L6-v2')
-    # embeddings = model.encode(text)
-    # with engine.connect() as conn:
-    # with conn.begin():
-    #     for index, row in df.iterrows():
-    #         sql = text("""
-    #             INSERT INTO scotch_reviews 
-    #             (name, category, review_point, price, description, description_vector) 
-    #             VALUES (:name, :category, :review_point, :price, :description, TO_VECTOR(:description_vector))
-    #         """)
-    #         conn.execute(sql, {
-    #             'name': row['name'], 
-    #             'category': row['category'], 
-    #             'review_point': row['review.point'], 
-    #             'price': row['price'], 
-    #             'description': row['description'], 
-    #             'description_vector': str(row['description_vector'])
-    #         })
+    vector_fields_str = ','.join([f"{fld}_Vector" for fld in fields])
+    #vector_flds_embed =','.join(["Embedding({row['{fld}']}" for fld in fields])
+
+    conn = connect.get_connection()
+    table_data = pd.read_sql(f"Select * from {table_name}", conn)
+
+    flds_with_values = []
+    with conn.cursor() as cursor:
+        for index, row in table_data.iterrows():
+            flds_with_values = []
+            for fld_name in fields:
+                if row[fld_name] :
+                    flds_with_values.append(f"{fld_name}_Vector = Embedding('{row[fld_name][:255]}', '{model_name}')")
+
+            if flds_with_values:
+                updates = ','.join(flds_with_values)
+
+                sql = text(f"""
+                    UPDATE {table_name} 
+                    SET {updates}
+                    WHERE ENCOUNTER_ID = {row['ENCOUNTER_ID']}
+                """)
+                print(sql)
+                cursor.execute(sql)
     
 if __name__ == '__main__':
-    #update_columns(add_columns=new_cols, del_columns=del_cols)
+    update_columns(add_columns=new_cols, del_columns=del_cols)
     add_embedding_config()
+    add_vectors()
     
 
 

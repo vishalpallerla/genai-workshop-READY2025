@@ -5,7 +5,7 @@
 	"service": "python",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/home/python/work,type=bind,consistency=cached",
 	"workspaceFolder": "/home/python/work",
-	"forwardPorts": [8889,"iris:52773","iris:1972"],
+	"forwardPorts": ["iris:52773","iris:1972"],
 	//"postStartCommand": "python test_script.py",
 	"vscode": {
 		"extensions": [
