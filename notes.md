@@ -21,6 +21,23 @@
                   '%Embedding.SentenceTransformers',
                   '',
                   'a small SentenceTransformers embedding model')
+      2. When running this on the IRIS host(not if running from another container), I get this error:
+         1. Unrecognized model in sentence-transformers/all-MiniLM-L6-v2. Should have a `model_type` key in its config.json, or contain one of the following strings in its name: albert, align, altclip, aria, aria_text, audio-spectrogram-transformer, autoformer, aya_vision, bamba, bark, bart, beit, bert, bert-generation, big_bird, bigbird_pegasus, biogpt, bit, blenderbot, blenderbot-small, blip, >]
+
+   4. Install order matters with iris python libs(and it should not)
+       > [python 8/8] RUN python create_desc_vectors.py:
+       Traceback (most recent call last):
+         File "/home/python/work/create_desc_vectors.py", line 6, in <module>
+           import iris
+         File "/usr/local/lib/python3.13/site-packages/iris/__init__.py", line 10, in <module>
+               raise Exception("""Cannot find InterSystems IRIS installation directory
+           Please set IRISINSTALLDIR environment variable to the InterSystems IRIS installation directory""")
+       Exception: Cannot find InterSystems IRIS installation directory
+           Please set IRISINSTALLDIR environment variable to the InterSystems IRIS installation directory
+4. Docker 
+   1. Does not track all the files for IRIS, like class files, so often need to rerun full build using --no-cache, which is extra slow becauase sentence-transformers is not included in iris
+   2. Docker stalling on builds after very short time and requires restart
+      1. Turing off resource saver to try and fix. Trying to apply and restart even stalled
 
 
 ## Notes

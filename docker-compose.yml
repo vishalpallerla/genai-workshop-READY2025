@@ -19,7 +19,9 @@ services:
       context: ./python
       dockerfile: Dockerfile
     tty: true
-    #command: [ "python", "/home/python/work/test_connect.py" ]
+    depends_on: ["iris"]
+    restart: always
+   # command: [ "python", "/home/python/work/connect.py", "tail", "-f", "/dev/null"]
     # ports:
     #   - 8889:8888
     volumes:

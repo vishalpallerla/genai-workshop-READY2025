@@ -1,0 +1,4 @@
+pandas
+sqlalchemy-iris==0.10.5
+sentence_transformers
+intersystems-irispython

@@ -15,6 +15,10 @@ config = {
     "password": "SYS",
 }
 
+def get_conn_url():
+    url = f"iris://{config['username']}@{config['password']}:{config['hostname']}:{config['port']}/{config['namespace']}" 
+    return url 
+
 def get_connection():
     connection = iris.connect(**config)
     return connection
@@ -25,3 +29,14 @@ def test():
             cursor.execute("select top 10 encounter_id from GenAI.encounters") 
             for row in cursor:
                 print(row)
+
+def load_model():
+    from sentence_transformers import SentenceTransformer
+    model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    print(model)
+
+if __name__ == '__main__':
+    try:
+        test()
+    except Exception as e:
+        print(e)

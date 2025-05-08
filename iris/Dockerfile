@@ -1,5 +1,3 @@
-ARG IMAGE=intersystemsdc/irishealth-community
-ARG IMAGE=intersystemsdc/iris-community:preview
 ARG IMAGE=intersystemsdc/iris-community
 FROM $IMAGE
 
@@ -9,17 +7,23 @@ ARG TESTS=0
 ARG MODULE="GenAI"
 ARG NAMESPACE="USER"
 
-# create Python env
 ## Embedded Python environment
-ENV IRISNAMESPACE="IRISAPP"
-ENV PYTHON_PATH=/usr/irissys/bin/
-ENV PATH="/usr/irissys/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/irisowner/bin:/home/irisowner/.local/bin"
-# ENV LIBRARY_PATH=${ISC_PACKAGE_INSTALLDIR}/bin:${LIBRARY_PATH}
-## Start IRIS
 
+# This is required for IPM
+ENV IRISNAMESPACE="IRISAPP"
+
+# This is not required. Why is here?
+#ENV PYTHON_PATH=/usr/irissys/bin/
+#ENV PYTHONPATH=/usr/irissys/mgr/python/
+ENV PATH="/usr/irissys/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/irisowner/bin:/home/irisowner/.local/bin"
+
+
+## Start IRIS
 RUN --mount=type=bind,src=.,dst=. \
-    pip3 install -r requirements.txt && \
+    # These are used in the creation of the image. requirements.txt is installed via IPPM
+    pip3 install -r requirements-dev.txt && \
     iris start IRIS && \
     iris merge IRIS merge.cpf && \
+  # iris stop IRIS quietly restart && \
     irispython iris_script.py && \
     iris stop IRIS quietly

@@ -4,5 +4,8 @@ iris-main.log
 .git
 __pycache__/
 
+data/
 iris/models-*
 iris/.locks/
+
+**.env
