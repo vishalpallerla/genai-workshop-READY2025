@@ -115,7 +115,7 @@ def load_model():
 
 def load_data():
     
-    iris.system.Process.SetNamespace("IRISAPP")
+    iris.system.Process.SetNamespace(app_namespace)
 
     # load demo data
     engine = create_engine('iris+emb:///')
@@ -186,8 +186,6 @@ def vectorize_data(data, table_name):
             
             print(f"Processed batch: {start} to {end} of {len(data)} for {col}")
 
-        
-  
 if __name__ == '__main__':
 
     data = load_data()
