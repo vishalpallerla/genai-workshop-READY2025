@@ -7,40 +7,28 @@ from time import sleep
 import os 
 import iris
 
-'''
-INSERT INTO %Embedding.Config (Name, Configuration, EmbeddingClass, VectorLength, Description)
-  VALUES ('my-openai-config', 
-          '{"apiKey":"<api key>", 
-            "sslConfig": "llm_ssl", 
-            "modelName": "text-embedding-3-small"}',
-          '%Embedding.OpenAI', 
-          1536,  
-          'a small embedding model provided by OpenAI')
-
-EMBEDDING(model,source)
-
-# create the model and form the embeddings
-model = sentence_transformers.SentenceTransformer('all-MiniLM-L6-v2')
-embeddings = model.encode(text)
-'''
-
 
 table_name = 'GenAI.encounters'
 model_dir = "/home/irisowner/dev"
 model_name = "sentence-transformers/all-MiniLM-L6-v2"
+fields_to_vectorize = ['DESCRIPTION_OBSERVATIONS', 'DESCRIPTION_PROCEDURES', 'DESCRIPTION_MEDICATIONS', 'DESCRIPTION_CONDITIONS', 'CLINICAL_NOTES']
+app_namespace = 'IRISAPP'
 
+# TODO - use fields_to_vectorize
 new_cols = [
     f"ALTER TABLE {table_name} ADD DESCRIPTION_OBSERVATIONS_Vector VECTOR(FLOAT, 384)",
     f"ALTER TABLE {table_name} ADD DESCRIPTION_PROCEDURES_Vector VECTOR(FLOAT, 384)",
     f"ALTER TABLE {table_name} ADD DESCRIPTION_MEDICATIONS_Vector VECTOR(FLOAT, 384)",
     f"ALTER TABLE {table_name} ADD DESCRIPTION_CONDITIONS_Vector VECTOR(FLOAT, 384)",
+    f"ALTER TABLE {table_name} ADD CLINICAL_NOTES_Vector VECTOR(FLOAT, 384)",
 ]
 
 del_cols = [
     f"ALTER TABLE {table_name} DROP DESCRIPTION_OBSERVATIONS_Vector",
     f"ALTER TABLE {table_name} DROP DESCRIPTION_PROCEDURES_Vector",
     f"ALTER TABLE {table_name} DROP DESCRIPTION_MEDICATIONS_Vector",
-    f"ALTER TABLE {table_name} DROP DESCRIPTION_CONDITIONS_Vector"
+    f"ALTER TABLE {table_name} DROP DESCRIPTION_CONDITIONS_Vector",
+    f"ALTER TABLE {table_name} DROP CLINICAL_NOTES_Vector"
 ]
 
 
@@ -96,12 +84,7 @@ def add_embedding_config(delete: bool = True):
 
 def add_vectors():
 
-    fields = ['DESCRIPTION_OBSERVATIONS', 'DESCRIPTION_PROCEDURES',
-              'DESCRIPTION_MEDICATIONS', 'DESCRIPTION_CONDITIONS']
-    
-    # fields_str = ','.join(fields)
-    # vector_fields_str = ','.join([f"{fld}_Vector" for fld in fields])
-    # vector_flds_embed =','.join(["Embedding({row['{fld}']}" for fld in fields])
+    fields = fields_to_vectorize
 
     conn = connect.get_connection()
     table_data = pd.read_sql(f"Select * from {table_name}", conn)
@@ -148,28 +131,19 @@ def load_data():
     results = data.to_sql(table_name, engine, if_exists='replace', index=False, schema="GenAI")
     print(f"Results: {results}")
 
-    # Add the vecor fields
-    table_name = "GenAI.encounters"
-    new_cols = [
-        f"ALTER TABLE {table_name} ADD DESCRIPTION_OBSERVATIONS_Vector VECTOR(FLOAT, 384)",
-        f"ALTER TABLE {table_name} ADD DESCRIPTION_PROCEDURES_Vector VECTOR(FLOAT, 384)",
-        f"ALTER TABLE {table_name} ADD DESCRIPTION_MEDICATIONS_Vector VECTOR(FLOAT, 384)",
-        f"ALTER TABLE {table_name} ADD DESCRIPTION_CONDITIONS_Vector VECTOR(FLOAT, 384)",
-    ]
-    
     update_columns(add_columns=new_cols)
 
     return data
 
 def vectorize_data(data, table_name):
     
-    iris.system.Process.SetNamespace("IRISAPP")
+    iris.system.Process.SetNamespace(app_namespace)
 
     # load demo data
     engine = create_engine('iris+emb:///')
     
     from sentence_transformers import SentenceTransformer
-    model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    model = SentenceTransformer(model_name)
 
     # Vectorize the data in the cols with string data, the columns named without the _Vector, in batches of 1000 and add to data
     # Vectorize the data in the columns without the _Vector suffix
@@ -179,7 +153,7 @@ def vectorize_data(data, table_name):
         batch = data.iloc[start:end]
         
         # Vectorize each column
-        for col in ['DESCRIPTION_OBSERVATIONS', 'DESCRIPTION_PROCEDURES', 'DESCRIPTION_MEDICATIONS', 'DESCRIPTION_CONDITIONS']:
+        for col in fields_to_vectorize:
             # Ensure all values are strings and non-null
             text_data = batch[col].dropna().apply(lambda x: str(x) if not isinstance(x, str) else x).tolist()
             col_vectors = model.encode(text_data, normalize_embeddings=True)
@@ -213,35 +187,9 @@ def vectorize_data(data, table_name):
             print(f"Processed batch: {start} to {end} of {len(data)} for {col}")
 
         
-        
-    '''  Sample write to IRIS with Vectors
-    with engine.connect() as conn:
-    with conn.begin():
-        for index, row in df.iterrows():
-            sql = text("""
-                INSERT INTO scotch_reviews 
-                (name, category, review_point, price, description, description_vector) 
-                VALUES (:name, :category, :review_point, :price, :description, TO_VECTOR(:description_vector))
-            """)
-            conn.execute(sql, {
-                'name': row['name'], 
-                'category': row['category'], 
-                'review_point': row['review.point'], 
-                'price': row['price'], 
-                'description': row['description'], 
-                'description_vector': str(row['description_vector'])
-            })
-    '''
-    
-    # Write back to the database using bulk inserts
-    #connection = connect.get_connection()
-    #with connection.begin() as transaction:
-    #data.to_sql(table_name, connection, if_exists='replace', index=False, schema="GenAI")
-    # transaction.commit()
   
 if __name__ == '__main__':
 
-    table_name = "GenAI.encounters"
-    # data = load_data()
+    data = load_data()
     # # add_embedding_config(delete=False)
-    # vectorize_data(data, table_name)
+    vectorize_data(data, table_name)

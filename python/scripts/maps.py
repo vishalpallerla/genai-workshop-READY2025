@@ -1203,5 +1203,8 @@ can_be_removed_observes = [
     'Platelet Count',  # Redundant with 'Platelets [#/volume] in Blood by Automated count'
     'Triglycerides',  # Less specific measurement compared to lipid panel components
     'Low Density Lipoprotein Cholesterol',  # Can be calculated from other lipid panel results
-    'Albumin'  # Redundant with 'Albumin [Mass/volume] in Serum or Plasma'
+    'Albumin'  # Redundant with 'Albumin [Mass/volume] in Serum or Plasma',
+    'Height',
+    'Weight',
+    'HeadCircumference'
 ]

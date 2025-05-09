@@ -47,14 +47,15 @@ def compute_cost(response):
     cost = response['usage']['total_tokens'] / 1000 * 0.0001
     print(f"Cost: ${cost}")
 
-set_size = 5
-# iterate through patients in sets of 10
+set_size = 2
+# iterate through patients in sets of set_size
 for i in range(0, len(patients), set_size):
     batch = patients.iloc[i:i+set_size]
     batch['bio'] = ''
     # convert into csv formatted string but not a csv file
-    batch_str = batch.to_csv(index=False)
+    batch_str = batch.to_csv()
     print(batch_str)
+    break
     response = get_patient_bio(batch_str)
     compute_cost(response)
     print(response['choices'][0]['message']['content'])

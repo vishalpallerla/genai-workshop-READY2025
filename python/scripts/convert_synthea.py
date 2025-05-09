@@ -118,7 +118,7 @@ def create_normalized_encounter(df_dict: dict[str, pd.DataFrame]) -> pd.DataFram
     """
     # First create a normalized patient and encounter DataFrame, only including
     # the patient id and all fields from encounter
-    patient_df = df_dict['patients'][['Id','BIRTHDATE']].set_index('Id')
+    patient_df = df_dict['patients'][['Id','BIRTHDATE', 'FIRST']].set_index('Id')
     encounter_df = df_dict['encounters']
     encounter_df = encounter_df.drop(columns=['ORGANIZATION', 'PROVIDER', 'PAYER'])
 
