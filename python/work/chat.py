@@ -35,6 +35,9 @@ namespace = "IRISAPP"  # This is the namespace for the IRIS connection
 # Create the connection string for the IRIS connection
 CONNECTION_STRING = f"iris://{username}:{password}@{hostname}:{port}/{namespace}"
 
+st.header("↗️GS 2025 Vector Search: Encounters Data↗️")
+
+exit() 
 # Create an instance of OpenAIEmbeddings, a class that provides a way to perform vector embeddings using OpenAI's embeddings.
 # TODO - determine if we still need this line
 embeddings = OpenAIEmbeddings()

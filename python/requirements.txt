@@ -3,3 +3,10 @@
 # pandas
 # sqlalchemy-iris==0.10.5
 #sentence_transformers
+streamlit
+langchain
+langchain-iris
+langchain-community
+urlextract
+intersystems-iris-python
+open-ai
