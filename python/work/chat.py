@@ -16,9 +16,9 @@ import os
 
 # Import dotenv, a module that provides a way to read environment variable files, and load the dotenv (.env) file that provides a few variables we need
 # TODO - address dotenv in new environment
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
-# load_dotenv(override=True)
+load_dotenv(override=True)
 
 # Load the urlextractor, a module that extracts URLs and will enable us to follow web-links
 from urlextract import URLExtract
@@ -28,7 +28,8 @@ extractor = URLExtract()
 # Define the IRIS connection - the username, password, hostname, port, and namespace for the IRIS connection.
 username = "_SYSTEM"  # This is the username for the IRIS connection
 password = "SYS"  # This is the password for the IRIS connection
-hostname = "iris"
+# Hostname defaults to "iris" for containerized environments, can be overridden by IRIS_HOSTNAME env var
+hostname = os.getenv("IRIS_HOSTNAME", "iris") 
 port = 1972  # This is the port number for the IRIS connection
 namespace = "IRISAPP"  # This is the namespace for the IRIS connection
 
@@ -37,7 +38,6 @@ CONNECTION_STRING = f"iris://{username}:{password}@{hostname}:{port}/{namespace}
 
 st.header("↗️GS 2025 Vector Search: Encounters Data↗️")
 
-exit() 
 # Create an instance of OpenAIEmbeddings, a class that provides a way to perform vector embeddings using OpenAI's embeddings.
 # TODO - determine if we still need this line
 embeddings = OpenAIEmbeddings()
